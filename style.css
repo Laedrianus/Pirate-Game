@@ -1,0 +1,148 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #eee;
+    background: radial-gradient(1200px 600px at 50% -200px, #0b1b2b, #051019 60%, #03070C);
+}
+#gameContainer {
+    width: 1200px; /* Genişletildi */
+    margin: 24px auto;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px 16px 24px;
+    backdrop-filter: blur(6px);
+}
+#gameHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+#gameHeader h1 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.5px;
+}
+#scoreDisplay {
+    background: rgba(0,0,0,0.4);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+#bonusContainer {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    min-height: 46px;
+}
+.bonus-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #142033;
+    padding: 8px 10px;
+    border: 1px solid #233a5c;
+    border-radius: 10px;
+}
+.follow-button {
+    padding: 6px 10px;
+    border: 1px solid #3178ff;
+    color: #fff;
+    background: #1b4fff;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.follow-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Yeni Ana İçerik Düzeni */
+#mainContent {
+    display: flex;
+    gap: 20px;
+}
+#gameArea {
+    flex: 0 0 auto; /* Oyun alanının sabit kalmasını sağlar */
+}
+#leaderboardSidebar {
+    flex: 1;
+    min-width: 0; /* Flex item'ların taşmasını engeller */
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    padding: 15px;
+    max-height: 620px; /* Canvas yüksekliği + padding */
+    overflow-y: auto; /* Uzun liste için kaydırma */
+}
+#leaderboardSidebar h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+}
+#leaderboardTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+#leaderboardTable th, #leaderboardTable td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+#leaderboardTable th {
+    background-color: rgba(0,0,0,0.3);
+    font-weight: bold;
+}
+#leaderboardBody tr:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+/* Yeni Ana İçerik Düzeni Sonu */
+
+#gameCanvas {
+    display: block;
+    margin: 0 auto 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: #000;
+    border-radius: 10px;
+}
+#gameControls {
+    display: grid;
+    gap: 12px;
+}
+#bonusMessage {
+    min-height: 22px;
+    color: #ffd166;
+    font-weight: 600;
+}
+#startScreen, #gameOverScreen {
+    text-align: center;
+    padding: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+}
+#startButton, #restartButton, #connectWalletBtn, #tweetScoreBtn, #verifyTweetBtn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #1b4fff;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+}
+#startButton:disabled {
+    background: #3a4b78;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+.hidden {
+    display: none !important;
+}
+.info { color: #a8c1ff; }
+.success { color: #57e389; }
+.error { color: #ff6b6b; }
+a { color: #8ab4ff; text-decoration: none; }
+a:hover { text-decoration: underline; }

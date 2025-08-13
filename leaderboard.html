@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Leaderboard - Pirate Parrot Game</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="leaderboardContainer">
+        <h1>Leaderboard</h1>
+
+        <div id="connectWalletSection">
+            <button id="connectWalletButton">Connect Wallet</button>
+            <div id="walletStatus"></div>
+        </div>
+
+        <div id="leaderboardContent">
+            <div id="loadingMessage">Loading leaderboard...</div>
+            <table id="leaderboardTable" class="hidden">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody"></tbody>
+            </table>
+        </div>
+
+        <div id="backToGame">
+            <a href="index.html">← Back to Game</a>
+        </div>
+    </div>
+
+    <!-- Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+
+    <script src="web3-integration.js"></script>
+    <script src="leaderboard.js"></script>
+</body>
+</html>

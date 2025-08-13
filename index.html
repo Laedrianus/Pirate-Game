@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pirate Parrot Game</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Ethers (mevcut projende kullanıyorsun) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+</head>
+<body>
+  <div id="gameContainer">
+    <div id="gameHeader">
+      <h1>Pirate Parrot Game</h1>
+      <div id="scoreDisplay">Score: 0</div>
+    </div>
+
+    <div id="bonusContainer">
+      <div id="pharosBonus" class="bonus-message hidden">
+        <span>BONUS: FOLLOW Pharos on X</span>
+        <button class="follow-button" data-key="pharos" id="pharosFollowBtn">Follow</button>
+      </div>
+      <div id="blocksenseBonus" class="bonus-message hidden">
+        <span>BONUS: FOLLOW Blocksense on X</span>
+        <button class="follow-button" data-key="blocksense" id="blocksenseFollowBtn">Follow</button>
+      </div>
+    </div>
+
+    <div id="mainContent">
+      <div id="gameArea">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <div id="gameControls">
+          <div id="bonusMessage"></div>
+
+          <div id="startScreen">
+            <h2>Welcome to Pirate Parrot Game!</h2>
+            <p>Use arrow keys to move, SPACEBAR to shoot</p>
+            <p>Reach 5 points for Pharos bonus, 10 points for Blocksense bonus</p>
+
+            <div id="walletConnectGroup">
+              <button id="connectWalletBtn">Connect Wallet</button>
+              <div id="walletStatus" class="info" style="margin-top:8px;">Wallet not connected</div>
+            </div>
+
+            <button id="startButton" disabled>Press ENTER or Click to Start</button>
+          </div>
+
+          <div id="gameOverScreen" class="hidden">
+            <h2>GAME OVER</h2>
+            <p>Final Score: <span id="finalScore">0</span></p>
+
+            <div id="blockchainSection">
+              <div id="blockchainStatus">Waiting to submit score...</div>
+              <div id="transactionInfo" class="hidden">
+                <p>Transaction sent successfully!</p>
+                <p>TX Hash: <a id="transactionLink" href="#" target="_blank">#</a></p>
+              </div>
+            </div>
+
+            <!-- Tweet bonus -->
+            <div id="endTweetGroup" style="margin-top:12px;">
+              <button id="tweetScoreBtn">Tweet your score for bonus</button>
+              <button id="verifyTweetBtn" class="hidden">Verify Tweet (grant bonus)</button>
+            </div>
+
+            <button id="restartButton">Restart Game</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="leaderboardSidebar">
+        <h3>Leaderboard (Top 50)</h3>
+        <div id="leaderboardLoading" class="info">Loading...</div>
+        <table id="leaderboardTable" class="hidden">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Web3.js (mevcut entegrasyonla uyumlu) -->
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+
+  <!-- On-chain entegrasyon -->
+  <script src="web3-integration.js"></script>
+
+  <!-- Oyun ana kodu -->
+  <script src="script.js"></script>
+</body>
+</html>
