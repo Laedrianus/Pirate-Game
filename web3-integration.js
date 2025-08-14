@@ -179,7 +179,7 @@ const ORIGINAL_CONTRACT_ABI = [
 let leaderboardContract;
 // --- YENI SON ---
 
-const PHAROS_RPC_URL = "https://api.zan.top/node/v1/pharos/testnet/b89512a57f014c6ca7f8d791bc8f8471";
+const PHAROS_RPC_URL = "https://testnet.dplabs-internal.com";
 
 async function connectToWeb3Interactive() {
     try {
