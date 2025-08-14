@@ -2,8 +2,6 @@ let web3;
 let contract;
 let userAccount;
 
-// --- YENI: Liderlik Sözleşmesi Bilgileri ---
-// Güncellenmiş sözleşme adresi: 0x1f124e276e4b503e9d6852e0f4489cfdbb1b412c
 const LEADERBOARD_CONTRACT_ADDRESS = "0x1f124e276e4b503e9d6852e0f4489cfdbb1b412c";
 const LEADERBOARD_CONTRACT_ABI = [
 	{
@@ -175,9 +173,7 @@ const ORIGINAL_CONTRACT_ABI = [
     }
 ];
 
-// --- YENI: Liderlik sözleşmesi nesnesi ---
 let leaderboardContract;
-// --- YENI SON ---
 
 const PHAROS_RPC_URL = "https://testnet.dplabs-internal.com";
 
@@ -191,16 +187,16 @@ async function connectToWeb3Interactive() {
             }
             userAccount = accounts[0];
             contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
+            
             leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
+       
             return { success: true, account: userAccount };
         } else {
             web3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
             contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
+            
             leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
+          
             return { success: false, error: 'MetaMask not detected' };
         }
     } catch (err) {
@@ -216,16 +212,16 @@ function initReadOnlyWeb3() {
                 ? new Web3(window.ethereum)
                 : new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
             contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
+        
             leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
+     
         } catch (err) {
             console.error('Init error:', err);
         }
     }
 }
 
-// --- DEĞİŞTİRİLDİ: Skor gönderme fonksiyonu artık yeni liderlik sözleşmesini kullanacak ---
+
 async function submitScoreToBlockchain(score) {
     try {
         if (!web3 || !leaderboardContract) initReadOnlyWeb3(); // <-- leaderboardContract kullan
@@ -257,7 +253,7 @@ async function submitScoreToBlockchain(score) {
     }
 }
 
-// --- YENI EKLENEN FONKSIYON: Liderlik tablosunu çek ---
+
 async function getLeaderboardFromBlockchain(limit = 50) {
     try {
         if (!web3 || !leaderboardContract) {
@@ -286,15 +282,14 @@ async function getLeaderboardFromBlockchain(limit = 50) {
         return { success: false, error: error.message || "Could not fetch leaderboard" };
     }
 }
-// --- YENI EKLENEN FONKSIYON SON ---
 
 // Globala aç
 window.connectToWeb3Interactive = connectToWeb3Interactive;
 window.submitScoreToBlockchain = submitScoreToBlockchain;
-// --- YENI: getLeaderboardFromBlockchain global olarak açıldı ---
+
 window.getLeaderboardFromBlockchain = getLeaderboardFromBlockchain;
-// --- YENI SON ---
+
 window.initReadOnlyWeb3 = initReadOnlyWeb3;
 
-// Sayfa yüklendiğinde readonly başlat
+
 window.addEventListener('load', initReadOnlyWeb3);
