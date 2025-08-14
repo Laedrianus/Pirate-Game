@@ -211,18 +211,26 @@ async function connectToWeb3Interactive() {
 }
 
 function initReadOnlyWeb3() {
-    if (!web3) {
-        try {
-            web3 = window.ethereum
-                ? new Web3(window.ethereum)
-                : new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
-            contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
-            leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
-        } catch (err) {
-            console.error('Init error:', err);
-        }
+    // Her zaman yeni bir web3 başlat ve doğrudan RPC'yi kullan
+    // window.ethereum'in durumu belirsiz olduğu için güvenli değil
+    if (web3) {
+        // Zaten başlatılmışsa, tekrar başlatmadan önce temizleyelim
+        // (Opsiyonel: web3.version vs gibi kontrol ederek)
+        // Ancak genellikle yeni başlatmak daha güvenlidir.
+        console.log("Web3 zaten başlatılmış. Yeniden başlatılıyor.");
+    }
+    
+    try {
+        // window.ethereum yerine doğrudan RPC'yi kullan
+        // Bu, hem gizli hem de normal pencerede tutarlı davranış sağlar
+        web3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
+        contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
+        // --- YENI: Liderlik sözleşmesini başlat ---
+        leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
+        // --- YENI SON ---
+        console.log("Read-only Web3 başlatıldı. RPC:", PHAROS_RPC_URL);
+    } catch (err) {
+        console.error('Init error:', err);
     }
 }
 
