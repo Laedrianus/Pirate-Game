@@ -267,21 +267,20 @@ async function submitScoreToBlockchain(score) {
 }
 
 // --- GUNCELLENMIS FONKSIYON: Liderlik tablosunu çek (Hata ayıklama eklenmiş) ---
+// *** TAMAMEN YENİLENMİŞ SÜRÜM ***
 async function getLeaderboardFromBlockchain(limit = 50) {
+    let localWeb3 = null;
+    let localLeaderboardContract = null;
     try {
-        if (!web3 || !leaderboardContract) {
-            console.log("Initializing web3/contract...");
-            initReadOnlyWeb3();
-        }
-        if (!leaderboardContract) {
-            console.error("ERROR: Leaderboard contract is still not initialized!");
-            throw new Error("Leaderboard contract not initialized");
-        }
+        // HER ZAMAN doğrudan RPC ile yeni bir web3 nesnesi oluştur
+        // Bu, cüzdan durumundan bağımsız olarak doğru ağa bağlanmamızı sağlar
+        localWeb3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
+        localLeaderboardContract = new localWeb3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
 
-        console.log("DEBUG: About to call getTop50 on contract:", LEADERBOARD_CONTRACT_ADDRESS);
+        console.log("DEBUG: About to call getTop50 on contract:", LEADERBOARD_CONTRACT_ADDRESS, "via RPC:", PHAROS_RPC_URL);
         
         // getTop50 fonksiyonunu çağır - Cache engelleme eklendi
-        const result = await leaderboardContract.methods.getTop50().call({ cache: 'no-store' });
+        const result = await localLeaderboardContract.methods.getTop50().call({ cache: 'no-store' });
         
         console.log("DEBUG: Raw result received from getTop50:", result);
         console.log("DEBUG: Type of result:", typeof result);
@@ -356,6 +355,12 @@ async function getLeaderboardFromBlockchain(limit = 50) {
             console.error("Error stack:", error.stack);
         }
         return { success: false, error: error.message || "Could not fetch leaderboard" };
+    } finally {
+        // localWeb3 bağlantısını temizle (opsiyonel, JS çöp toplayıcısı halledebilir)
+        if (localWeb3) {
+            // Web3.js'nin HttpProvider'ı için özel bir kapatma işlemi genellikle gerekmez
+            // Ancak gelecekte websocket kullanılırsa önemli olabilir.
+        }
     }
 }
 // --- GUNCELLENMIS FONKSIYON SON ---
