@@ -2,8 +2,6 @@ let web3;
 let contract;
 let userAccount;
 
-// --- YENI: Liderlik Sözleşmesi Bilgileri ---
-// Güncellenmiş sözleşme adresi: 0x1f124e276e4b503e9d6852e0f4489cfdbb1b412c
 const LEADERBOARD_CONTRACT_ADDRESS = "0x1f124e276e4b503e9d6852e0f4489cfdbb1b412c";
 const LEADERBOARD_CONTRACT_ABI = [
 	{
@@ -139,7 +137,6 @@ const LEADERBOARD_CONTRACT_ABI = [
 		"type": "function"
 	}
 ];
-// --- YENI SON ---
 
 const ORIGINAL_CONTRACT_ADDRESS = "0x15A96966a7003bfc63B58ee9658418DB72D3974D";
 const ORIGINAL_CONTRACT_ABI = [
@@ -175,16 +172,68 @@ const ORIGINAL_CONTRACT_ABI = [
     }
 ];
 
-// --- YENI: Liderlik sözleşmesi nesnesi ---
 let leaderboardContract;
-// --- YENI SON ---
 
-// RPC URL'sindeki boşluk karakterlerini temizledim
-const PHAROS_RPC_URL = "https://api.zan.top/node/v1/pharos/testnet/b89512a57f014c6ca7f8d791bc8f8471";
+const PHAROS_RPC_URL = "https://testnet.dplabs-internal.com";
+
+const PHAROS_TESTNET_CONFIG = {
+    chainId: '0x' + (688688).toString(16),
+    chainName: 'Pharos Testnet',
+    nativeCurrency: {
+        name: 'PHAR',
+        symbol: 'PHAR',
+        decimals: 18
+    },
+    rpcUrls: ['https://testnet.dplabs-internal.com'],
+    blockExplorerUrls: ['https://testnet.pharosscan.xyz/'],
+    iconUrls: []
+};
+
+async function switchOrAddPharosNetwork() {
+    if (!window.ethereum) {
+        alert("MetaMask not installed!");
+        return false;
+    }
+
+    const chainIdHex = PHAROS_TESTNET_CONFIG.chainId;
+
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainIdHex }]
+        });
+        console.log("Already connected to Pharos Testnet network.");
+        return true;
+    } catch (switchError) {
+        if (switchError.code === 4902) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [PHAROS_TESTNET_CONFIG]
+                });
+                console.log("Pharos Testnet network successfully added.");
+                return true;
+            } catch (addError) {
+                console.error("Error adding network:", addError);
+                alert("Could not add network. Please add it manually.");
+                return false;
+            }
+        } else {
+            console.error("Could not switch network:", switchError);
+            alert("Could not switch network. Please change it manually.");
+            return false;
+        }
+    }
+}
 
 async function connectToWeb3Interactive() {
     try {
         if (window.ethereum) {
+            const networkAdded = await switchOrAddPharosNetwork();
+            if (!networkAdded) {
+                return { success: false, error: 'Network configuration failed.' };
+            }
+
             web3 = new Web3(window.ethereum);
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             if (!accounts || accounts.length === 0) {
@@ -192,16 +241,12 @@ async function connectToWeb3Interactive() {
             }
             userAccount = accounts[0];
             contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
             leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
             return { success: true, account: userAccount };
         } else {
             web3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
             contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-            // --- YENI: Liderlik sözleşmesini başlat ---
             leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-            // --- YENI SON ---
             return { success: false, error: 'MetaMask not detected' };
         }
     } catch (err) {
@@ -211,33 +256,23 @@ async function connectToWeb3Interactive() {
 }
 
 function initReadOnlyWeb3() {
-    // Her zaman yeni bir web3 başlat ve doğrudan RPC'yi kullan
-    // window.ethereum'in durumu belirsiz olduğu için güvenli değil
     if (web3) {
-        // Zaten başlatılmışsa, tekrar başlatmadan önce temizleyelim
-        // (Opsiyonel: web3.version vs gibi kontrol ederek)
-        // Ancak genellikle yeni başlatmak daha güvenlidir.
-        console.log("Web3 zaten başlatılmış. Yeniden başlatılıyor.");
+        console.log("Web3 already initialized. Reinitializing.");
     }
     
     try {
-        // window.ethereum yerine doğrudan RPC'yi kullan
-        // Bu, hem gizli hem de normal pencerede tutarlı davranış sağlar
         web3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
         contract = new web3.eth.Contract(ORIGINAL_CONTRACT_ABI, ORIGINAL_CONTRACT_ADDRESS);
-        // --- YENI: Liderlik sözleşmesini başlat ---
         leaderboardContract = new web3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
-        // --- YENI SON ---
-        console.log("Read-only Web3 başlatıldı. RPC:", PHAROS_RPC_URL);
+        console.log("Read-only Web3 initialized. RPC:", PHAROS_RPC_URL);
     } catch (err) {
         console.error('Init error:', err);
     }
 }
 
-// --- DEĞİŞTİRİLDİ: Skor gönderme fonksiyonu artık yeni liderlik sözleşmesini kullanacak ---
 async function submitScoreToBlockchain(score) {
     try {
-        if (!web3 || !leaderboardContract) initReadOnlyWeb3(); // <-- leaderboardContract kullan
+        if (!web3 || !leaderboardContract) initReadOnlyWeb3();
 
         const accounts = await web3.eth.getAccounts();
         if (!accounts || accounts.length === 0) {
@@ -247,13 +282,11 @@ async function submitScoreToBlockchain(score) {
 
         let gas = 200000;
         try {
-            // <-- leaderboardContract.methods kullan
             gas = await leaderboardContract.methods.submitScore(score).estimateGas({ from: userAccount });
         } catch (e) {
             console.warn("Gas estimate failed, using fallback");
         }
 
-        // <-- leaderboardContract.methods.send kullan
         const tx = await leaderboardContract.methods.submitScore(score).send({
             from: userAccount,
             gas: Math.min(gas + 10000, 500000)
@@ -261,35 +294,35 @@ async function submitScoreToBlockchain(score) {
 
         return { success: true, txHash: tx.transactionHash };
     } catch (error) {
-        console.error('Submit error:', error);
+        // Check if the user rejected the transaction
+        if (error.code === 4001 || (error.message && error.message.includes("User denied transaction signature"))) {
+            // User rejected the transaction, show simple alert
+            alert("User cancelled the transaction");
+            return { success: false, error: "User cancelled the transaction" };
+        }
+        
+        // For other errors, return error message without logging to console
         return { success: false, error: error.message || "Transaction failed" };
     }
 }
 
-// --- GUNCELLENMIS FONKSIYON: Liderlik tablosunu çek (Hata ayıklama eklenmiş) ---
-// *** TAMAMEN YENİLENMİŞ SÜRÜM ***
 async function getLeaderboardFromBlockchain(limit = 50) {
     let localWeb3 = null;
     let localLeaderboardContract = null;
     try {
-        // HER ZAMAN doğrudan RPC ile yeni bir web3 nesnesi oluştur
-        // Bu, cüzdan durumundan bağımsız olarak doğru ağa bağlanmamızı sağlar
         localWeb3 = new Web3(new Web3.providers.HttpProvider(PHAROS_RPC_URL));
         localLeaderboardContract = new localWeb3.eth.Contract(LEADERBOARD_CONTRACT_ABI, LEADERBOARD_CONTRACT_ADDRESS);
 
         console.log("DEBUG: About to call getTop50 on contract:", LEADERBOARD_CONTRACT_ADDRESS, "via RPC:", PHAROS_RPC_URL);
         
-        // getTop50 fonksiyonunu çağır - Cache engelleme eklendi
         const result = await localLeaderboardContract.methods.getTop50().call({ cache: 'no-store' });
         
         console.log("DEBUG: Raw result received from getTop50:", result);
         console.log("DEBUG: Type of result:", typeof result);
         console.log("DEBUG: Is result an array?", Array.isArray(result));
         
-        // Web3.js bazen sonuçları farklı şekilde döndürebilir
         let addrsArray, scoresArray;
         if (Array.isArray(result)) {
-            // Eski Web3.js sürümleri bazen array olarak döndürebilir
             console.log("DEBUG: Result is an array. Length:", result.length);
             if (result.length === 2) {
                 addrsArray = result[0];
@@ -300,7 +333,6 @@ async function getLeaderboardFromBlockchain(limit = 50) {
                 throw new Error("Unexpected result format from contract");
             }
         } else if (result && typeof result === 'object' && result.addrs !== undefined && result.scores !== undefined) {
-            // Yeni Web3.js sürümleri genellikle isimlendirilmiş obje olarak döndürür
             addrsArray = result.addrs;
             scoresArray = result.scores;
             console.log("DEBUG: Parsed from object - addrs:", addrsArray, "scores:", scoresArray);
@@ -350,28 +382,20 @@ async function getLeaderboardFromBlockchain(limit = 50) {
         console.error("Error message:", error.message);
         console.error("Error code:", error.code);
         console.error("Error reason:", error.reason);
-        // Hatanın yığın izini (stack trace) de alalım
         if (error.stack) {
             console.error("Error stack:", error.stack);
         }
         return { success: false, error: error.message || "Could not fetch leaderboard" };
     } finally {
-        // localWeb3 bağlantısını temizle (opsiyonel, JS çöp toplayıcısı halledebilir)
         if (localWeb3) {
-            // Web3.js'nin HttpProvider'ı için özel bir kapatma işlemi genellikle gerekmez
-            // Ancak gelecekte websocket kullanılırsa önemli olabilir.
         }
     }
 }
-// --- GUNCELLENMIS FONKSIYON SON ---
 
-// Globala aç
 window.connectToWeb3Interactive = connectToWeb3Interactive;
 window.submitScoreToBlockchain = submitScoreToBlockchain;
-// --- YENI: getLeaderboardFromBlockchain global olarak açıldı ---
 window.getLeaderboardFromBlockchain = getLeaderboardFromBlockchain;
-// --- YENI SON ---
 window.initReadOnlyWeb3 = initReadOnlyWeb3;
+window.switchOrAddPharosNetwork = switchOrAddPharosNetwork;
 
-// Sayfa yüklendiğinde readonly başlat
 window.addEventListener('load', initReadOnlyWeb3);
